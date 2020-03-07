@@ -5,6 +5,8 @@ import java.awt.event.*;
 import javax.swing.*;
 
 public class ScreenSnipHome extends JPanel implements ActionListener {
+    
+    protected static JFrame homeFrame;
     protected JButton btnNewSnip, btnOpenSettings;
     protected int keyPressed;
 
@@ -43,15 +45,13 @@ public class ScreenSnipHome extends JPanel implements ActionListener {
 	
 	if (ScreenSnipConstants.ACTION_NEW_SNIP.equals(e.getActionCommand())) {
 	    // open new snip
-	    System.out.println(ScreenSnipConstants.ACTION_NEW_SNIP);
 	    
 	    NewSnip ns = new NewSnip();
-	    ns.openNewSnipBox();
+	    ns.openNewSnipBox(homeFrame);
 	    
 	} else if (ScreenSnipConstants.ACTION_OPEN_SETTINGS.contentEquals(e.getActionCommand())) {
 	    // open settings
 	    System.out.println(ScreenSnipConstants.ACTION_OPEN_SETTINGS);
-	    
 	    
 	}
     }
@@ -61,20 +61,20 @@ public class ScreenSnipHome extends JPanel implements ActionListener {
      * should be invoked from the event-dispatching thread.
      */
     private static void createAndShowGUI() {
-        
+
 	// Create and set up the window.
-	JFrame frame = new JFrame(ScreenSnipConstants.LABEL_MAIN);
-	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	frame.setPreferredSize(new Dimension(300, 80));
+	homeFrame = new JFrame(ScreenSnipConstants.LABEL_MAIN);
+	homeFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	homeFrame.setPreferredSize(new Dimension(300, 80));
 
 	// Create and set up the content pane.
 	ScreenSnipHome scrSnip = new ScreenSnipHome();
-	scrSnip.setOpaque(true); //content panes must be opaque
-        frame.setContentPane(scrSnip);
+	scrSnip.setOpaque(true); // content panes must be opaque
+	homeFrame.setContentPane(scrSnip);
 
-        //Display the window.
-        frame.pack();
-        frame.setVisible(true);
+	// Display the window.
+	homeFrame.pack();
+	homeFrame.setVisible(true);
     }
 
     /**

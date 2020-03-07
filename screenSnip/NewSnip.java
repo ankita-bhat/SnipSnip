@@ -1,7 +1,5 @@
 package screenSnip;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.image.BufferedImage;
@@ -12,7 +10,6 @@ import javax.imageio.ImageIO;
 
 import java.awt.AWTException;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.KeyEvent;
@@ -20,15 +17,12 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 
 import javax.swing.BorderFactory;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-
 public class NewSnip extends JPanel implements KeyListener,  MouseListener,  MouseMotionListener  {
-    // javax.swing.event.MouseInputAdapter class implements both  MouseListener,  MouseMotionListener 
     
-    private JFrame grayBgFrame, snipAreaFrame;
+    private JFrame homeFrame, grayBgFrame, snipAreaFrame;
     private int startPointX, startPointY, endPointX, endPointY, imgWidth, imgHeight;
     
     /**
@@ -36,7 +30,10 @@ public class NewSnip extends JPanel implements KeyListener,  MouseListener,  Mou
      * button is clicked from Main Menu. Initializes the Gray background
      * to show ready for screenshot.
      */
-    protected void openNewSnipBox() {
+    protected void openNewSnipBox(JFrame homeFrame) {
+	
+	this.homeFrame = homeFrame;
+	homeFrame.setVisible(false);
 
 	// Make a full screen JFrame - gray, then add Mouse Event Listener on it
 	grayBgFrame = new JFrame();
@@ -150,7 +147,9 @@ public class NewSnip extends JPanel implements KeyListener,  MouseListener,  Mou
 	endPointY = 0;
 	imgWidth = 0;
 	imgHeight = 0;
-
+	
+	// Main menu should be visible again
+	this.homeFrame.setVisible(true);
     }
     
     
@@ -180,19 +179,19 @@ public class NewSnip extends JPanel implements KeyListener,  MouseListener,  Mou
     @Override
     public void keyTyped(KeyEvent e) {
 	// Check for ESC
-	
+
 	int id = e.getID();
-	
-        if (id == KeyEvent.KEY_TYPED) {
-            
-            grayBgFrame.dispose();
-            grayBgFrame = null;
+
+	if (id == KeyEvent.KEY_TYPED) {
+
+	    grayBgFrame.dispose();
+	    grayBgFrame = null;
 //            Alt: frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-            
-            snipAreaFrame.dispose();
-            snipAreaFrame = null;
-            
-        }
+
+	    snipAreaFrame.dispose();
+	    snipAreaFrame = null;
+
+	}
     }
 
     // Keyboard handling
