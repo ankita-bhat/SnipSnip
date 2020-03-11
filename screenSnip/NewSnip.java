@@ -18,20 +18,24 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
 
-public class NewSnip extends JPanel implements KeyListener,  MouseListener,  MouseMotionListener  {
-    
+public class NewSnip extends JPanel implements KeyListener, MouseListener, MouseMotionListener {
+
     private JFrame homeFrame, grayBgFrame, snipAreaFrame;
     private int startPointX, startPointY, endPointX, endPointY, imgWidth, imgHeight;
-    
+    private Border border = BorderFactory.createLineBorder(Color.BLACK, 1);
+    // private boolean isMouseReleased = false;
+
     /**
-     * Readies screen for Screenshot. This is called whenever "New Snip"
-     * button is clicked from Main Menu. Initializes the Gray background
-     * to show ready for screenshot.
+     * Readies screen for Screenshot. This is called whenever "New Snip" button is
+     * clicked from Main Menu. Initializes the Gray background to show ready state
+     * for screenshot.
      */
     protected void openNewSnipBox(JFrame homeFrame) {
-	
+
 	this.homeFrame = homeFrame;
 	homeFrame.setVisible(false);
 
@@ -51,17 +55,17 @@ public class NewSnip extends JPanel implements KeyListener,  MouseListener,  Mou
 	grayBgFrame.pack();
 	grayBgFrame.setVisible(true);
 
-	//TODO: ESC key must close this frame!!
+	// TODO: ESC key must close this frame!!
 	// Currently any key press will close this frame
 	grayBgFrame.addKeyListener(this);
 
     }
-    
+
     @Override
     public void mouseClicked(MouseEvent e) {
 	// do nothing
     }
-    
+
     @Override
     public void mouseEntered(MouseEvent e) {
 	// do nothing
@@ -74,49 +78,58 @@ public class NewSnip extends JPanel implements KeyListener,  MouseListener,  Mou
 
     @Override
     /**
-     * User mouse down event : When Mouse is pressed in gray background Area, new Frame 
-     * is created based on user click starting position (x, y)
+     * User mouse down event : When Mouse is pressed in gray background Area, new
+     * Frame is created based on user click starting position (x, y)
      * 
      * 
      * Sequence 1 of 3
      */
     public void mousePressed(MouseEvent e) {
-        
-        startPointX = e.getX();
-        startPointY = e.getY();
-        
-        if (snipAreaFrame == null) {
-            snipAreaFrame = new JFrame();
-            snipAreaFrame.setUndecorated(true); // Specifies I don't want menu bar
-            
-            snipAreaFrame.setResizable(true);
-            snipAreaFrame.getRootPane().setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
-            snipAreaFrame.setBackground(new Color(1.0f,1.0f,1.0f,0.0f));
-            
-            snipAreaFrame.addMouseListener(this);
-            snipAreaFrame.addMouseMotionListener(this);
-            snipAreaFrame.addKeyListener(this);
-        }
+
+	startPointX = e.getX();
+	startPointY = e.getY();
+
+	if (snipAreaFrame == null) {
+	    snipAreaFrame = new JFrame();
+	    snipAreaFrame.setUndecorated(true); // Specifies I don't want menu bar
+
+	    snipAreaFrame.setResizable(true);
+	    snipAreaFrame.getRootPane().setBorder(border);
+	    // snipAreaFrame.getContentPane().setBorder(BorderFactory.createLineBorder(Color.BLACK,
+	    // 1));
+
+	    snipAreaFrame.setBackground(new Color(1.0f, 1.0f, 1.0f, 0.0f));
+
+	    snipAreaFrame.addMouseListener(this);
+	    snipAreaFrame.addMouseMotionListener(this);
+	    snipAreaFrame.addKeyListener(this);
+	}
     }
 
     @Override
     /**
-     * User mouse up event : Finalize window - auto save print screen to default location.
-     * Remove the background gray Frame, finalize user snapshot area, call takeScreenshot() method
+     * User mouse up event : Finalize window - auto save print screen to default
+     * location. Remove the background gray Frame, finalize user snapshot area, call
+     * takeScreenshot() method
      * 
      * Sequence 3 of 3
      */
     public void mouseReleased(MouseEvent e) {
-        grayBgFrame.dispose();
-        
-        takeScreenshot();
+	grayBgFrame.dispose();
+
+	// Don't need frame at all since we are taking SS based on coordinates
+	if (!ScreenSnipHome.saveWithBorders) {
+	    snipAreaFrame.dispose();
+	}
+
+	takeScreenshot();
     }
 
-    /** Save screenshot */
+    /** Save screenshot to Save Location */
     private void takeScreenshot() {
-	// System.out.println("Inside Take SS method");
 
 	try {
+
 	    Robot robot = new Robot();
 	    BufferedImage image = robot
 		    .createScreenCapture(new Rectangle(startPointX, startPointY, imgWidth, imgHeight));
@@ -125,20 +138,25 @@ public class NewSnip extends JPanel implements KeyListener,  MouseListener,  Mou
 	    ImageIO.write(image, sshelper.getImageType(false), new File(sshelper.getFullFilePath()));
 
 	} catch (IOException | AWTException e) {
-	    System.out.println("Exception while saving image " + e.getLocalizedMessage());
-	}
+	    String errMsg = "Exception while saving image ";
+	    // System.out.println("Exception while saving image " +
+	    // e.getLocalizedMessage());
+	    JOptionPane.showMessageDialog(this, errMsg, "SnipSnip Error", JOptionPane.ERROR_MESSAGE);
 
-	// System.out.println("Exiting Take SS method");
+	}
 
 	resetAllFramesAndValues();
     }
-    
+
     /**
-     * Disposes off the snipping area after SS is taken. Resets dimensions for next Screenshot
+     * Disposes off the snipping area after SS is taken. Resets dimensions for next
+     * Screenshot
      */
     private void resetAllFramesAndValues() {
 
-	snipAreaFrame.dispose();
+	if (snipAreaFrame != null) {
+	    snipAreaFrame.dispose();
+	}
 	snipAreaFrame = null;
 
 	startPointX = 0;
@@ -147,35 +165,34 @@ public class NewSnip extends JPanel implements KeyListener,  MouseListener,  Mou
 	endPointY = 0;
 	imgWidth = 0;
 	imgHeight = 0;
-	
+
 	// Main menu should be visible again
 	this.homeFrame.setVisible(true);
     }
-    
-    
+
     @Override
     /**
-     * User mouse drag event : Draws frame that changes dimensions based on mouse location
-     * Sequence 2 of 3
+     * User mouse drag event : Draws frame that changes dimensions based on mouse
+     * location Sequence 2 of 3
      */
     public void mouseDragged(MouseEvent e) {
-	
-        endPointX = e.getX();
-        endPointY = e.getY();
-        
-        imgWidth = endPointX - startPointX;
-        imgHeight = endPointY - startPointY;
 
-        snipAreaFrame.setBounds(startPointX, startPointY, imgWidth, imgHeight);
-        snipAreaFrame.setVisible(true);
-        
+	endPointX = e.getX();
+	endPointY = e.getY();
+
+	imgWidth = endPointX - startPointX;
+	imgHeight = endPointY - startPointY;
+
+	snipAreaFrame.setBounds(startPointX, startPointY, imgWidth, imgHeight);
+	snipAreaFrame.getRootPane().setBorder(border);
+	snipAreaFrame.setVisible(true);
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
 	// do nothing
     }
-    
+
     @Override
     public void keyTyped(KeyEvent e) {
 	// Check for ESC
